@@ -9,38 +9,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class BaseService {
+	
+	private List<Service<?>> services;
 
-    private List<Service<?>> services;
-
-    public BaseService(){
-        this.services=new ArrayList<>();
-    }
-
-    protected <D> Service<D> createService(Task<D> task, EventHandler<WorkerStateEvent> onSuccess,EventHandler<WorkerStateEvent>beforeStart){
-        Service<D> service=new Service<D>() {
-            @Override
-            protected Task<D> createTask() {
-                return task;
-            }
-        };
-        if (onSuccess!=null){
-            service.setOnSucceeded(onSuccess);
-        }
-
-        if (beforeStart!=null){
-            service.setOnScheduled(beforeStart);
-        }
-        service.setOnFailed(e->{
-            System.out.println("Failed:"+ e.getSource().getMessage());
-        });
-        service.start();
-        services.add(service);
-        return service;
-    }
-
-    public void onClose(){
-        for(Service<?> service:services){
-            service.cancel();
-        }
-    }
+	public BaseService() {
+		this.services = new ArrayList<Service<?>>();
+	}
+	
+	protected <D> Service<D> createService(Task<D> task, EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) {
+		Service<D> service = new Service<D>() {
+				protected Task<D> createTask() {
+					return task;
+				}
+		};
+		
+		if (onSucess != null)
+			service.setOnSucceeded(onSucess);
+		
+		if (beforeStart != null)
+			service.setOnScheduled(beforeStart);
+		
+		service.setOnFailed(e -> {
+			System.out.println("Failed: " + e.getSource().getException());
+		});
+		
+		service.start();
+		
+		services.add(service);
+		
+		return service;
+	}
+	
+	public void onClose() {
+		
+		for (Service<?> service : services) {
+			service.cancel();
+		}
+		
+	}
+	
 }

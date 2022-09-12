@@ -1,56 +1,84 @@
 package uz.namangan.rest.service;
 
-import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Service;
 import uz.namangan.rest.model.Language;
+import uz.namangan.rest.repository.LanguageRepository;
 
-import java.util.List;
+@Service("languageService")
+public class LanguageServiceImpl extends BaseCrudService<Language, JpaRepository<Language,Long>> implements LanguageService {
+	
+	private LanguageRepository languageRepository;
+	
+	public LanguageServiceImpl(LanguageRepository repository) {
+		super(repository);
+		
+		this.languageRepository = repository;
+	}
 
-public  class LanguageServiceImpl extends BaseCrudService<Language, JpaRepository<Language,Long>> implements LanguageService{
-    @Override
-    public Service<Language> save(Language obj, EventHandler<WorkerStateEvent> onSuccess, EventHandler<WorkerStateEvent> beforeStart) throws Exception {
-        return null;
-    }
+	public LanguageRepository getLanguageRepository() {
+		return languageRepository;
+	}
 
-    @Override
-    public Service<List<Language>> findAll(EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) {
-        return null;
-    }
+	public void setLanguageRepository(LanguageRepository languageRepository) {
+		this.languageRepository = languageRepository;
+	}
 
-    @Override
-    public Service<Void> delete(long id, EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) throws Exception {
-        return null;
-    }
+	@Override
+	public javafx.concurrent.Service<Language> findDefaultLanguage(EventHandler<WorkerStateEvent> onSucess,
+			EventHandler<WorkerStateEvent> beforeStart) {
+		return createService(new Task<Language>() {
+			protected Language call() throws Exception {
+				return findDefaultLanguage();
+			};
+		}, onSucess, beforeStart);
+	}
+	
+	@Override
+	public Language findDefaultLanguage() {
+		return languageRepository.findDefaultLanguage();
+	}
+	
+	@Override
+	public javafx.concurrent.Service<Void> cleanLanguageDefault(EventHandler<WorkerStateEvent> onSucess,
+			EventHandler<WorkerStateEvent> beforeStart) {
+		return createService(new Task<Void>() {
+			protected Void call() throws Exception {
+				languageRepository.cleanLanguageDefault();
+				
+				return null;
+			};
+		}, onSucess, beforeStart);
+	}
 
-    @Override
-    public Service<Language> find(long id, EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) throws Exception {
-        return null;
-    }
+	@Override
+	public javafx.concurrent.Service<Void> setLanguageAsDefault(String language, String country,
+			EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) {
+		return createService(new Task<Void>() {
+			protected Void call() throws Exception {
+				languageRepository.setLanguageAsDefault(language, country);
+				
+				return null;
+			};
+		}, onSucess, beforeStart);
+	}
 
-    @Override
-    public Service<Language> changeDefaultLanguage(Language newDefaultLanguage, EventHandler<WorkerStateEvent> onSuccess, EventHandler<WorkerStateEvent> beforeStart) {
-        return null;
-    }
+	@Override
+	public javafx.concurrent.Service<Language> changeDefaultLanguage(Language newDafaultLanguage, EventHandler<WorkerStateEvent> onSucess,
+			EventHandler<WorkerStateEvent> beforeStart) {
+		return createService(new Task<Language>() {
+			protected Language call() throws Exception {
+				
+				languageRepository.cleanLanguageDefault();
+				languageRepository.setLanguageAsDefault(newDafaultLanguage.getLanguageCode(), newDafaultLanguage.getCountryCode());
+				
+				return null;
+			};
+		}, onSucess, beforeStart);
+	}
 
-    @Override
-    public Service<Language> findDefaultLanguage(EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) {
-        return null;
-    }
 
-    @Override
-    public Language findDefaultLanguage() {
-        return null;
-    }
-
-    @Override
-    public Service<Void> cleanLanguageDefault(EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) {
-        return null;
-    }
-
-    @Override
-    public Service<Void> setLanguageAsDefault(String language, String country, EventHandler<WorkerStateEvent> onSucess, EventHandler<WorkerStateEvent> beforeStart) {
-        return null;
-    }
 }
